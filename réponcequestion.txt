@@ -1,0 +1,81 @@
+Q1. Les quatre moteurs (PostgreSQL, MongoDB, Redis, Neo4j) correspondent aux différentes séances du TP. 
+On les met dans le même fichier pour tout avoir au même endroit et lancer seulement ce dont on a besoin. 
+Il y a aussi un service api qui ne se lance qu'avec le profil app.
+
+Q2. C'est Redis, il n'a pas de section volumes. 
+Ses données ne sont pas gardées en dehors du conteneur, 
+donc si on le supprime ou le recrée, on perd tout.
+
+Q3. "15432:5432" veut dire port de la machine : port du conteneur.
+Depuis mon PC je me connecte sur le 15432, mais dans le conteneur PostgreSQL écoute sur le 5432. 
+Entre conteneurs, on utilise le nom du service et le port interne, par exemple postgres:5432.
+
+Q4. En local pour un TP, un mot de passe en clair peut passer si c'est juste pour tester, 
+qu'il ne protège rien d'important et qu'on ne le réutilise pas ailleurs. En production, non. 
+Les mots de passe ne doivent pas être écrits dans un fichier versionné (Git) et il faut des identifiants solides.
+
+Q5. docker compose exec lance une commande dans un conteneur qui tourne déjà. 
+Ici redis-cli ping s'exécute dans le conteneur redis, pas sur mon PC, et Redis doit répondre PONG.
+
+Q6. Avec dotnet run, l'API tourne sur mon PC, donc localhost c'est mon PC. Docker expose le port 5432 du conteneur sur le 15432 de ma machine,
+ donc Host=localhost;Port=15432 marche. Si l'API était dans un conteneur, localhost désignerait le conteneur de l'API lui-même. 
+ Il faudrait alors Host=postgres;Port=5432.
+
+Q7. Non, les trois joueurs ne sont pas dupliqués. Ils sont stockés dans PostgreSQL, dont les données sont dans le volume pg_data, 
+pas dans la mémoire de l'appli. Au démarrage, le code n'ajoute les joueurs que si la table Players est vide, ce qui n'est plus le cas après le premier lancement.
+
+Q8. Avant SaveChangesAsync(), player.Id vaut 0 (valeur par défaut d'un int), parce que c'est la base qui génère l'id. 
+Après, EF Core récupère l'id donné par PostgreSQL et le met dans player, donc il vaut 4 (les ids 1, 2 et 3 sont déjà pris).
+ C'est PostgreSQL qui choisit 4 avec sa séquence, pas notre code.
+
+Q9. Après le ROLLBACK, les soldes redeviennent comme avant le BEGIN : Nova a 1200 pièces et Krayz 350. Sans transaction, 
+chaque UPDATE est validé tout seul. Si le serveur s'éteint juste après le débit de Nova, elle perd 100 pièces sans que Krayz les reçoive,
+ et les données sont fausses. Avec une transaction, les deux opérations sont validées ensemble ou annulées ensemble.
+
+Q10. Tant que A n'a pas validé, B et l'API voient toujours la dernière version validée : Nova a 1200, pas les 1100 de A. 
+Par contre, si B essaie de modifier la même ligne, il doit attendre que A termine. Quand A fait ROLLBACK, son débit est annulé et B continue avec le solde validé. Sans cette attente, deux achats en même temps pourraient partir du même solde et donner un résultat faux, 
+ou dépenser plus que ce qu'il y a sur le compte.
+
+Q11. C'est PostgreSQL qui refuse l'achat. La contrainte CHECK impose que Coins reste supérieur ou égal à 0, et le débit ferait passer Ombre de 90 à -10. Après l'erreur,
+la transaction est marquée comme échouée et les commandes suivantes (même le SELECT) sont refusées jusqu'au ROLLBACK. Après le ROLLBACK, la contrainte n'existe plus, parce que le ALTER TABLE était dans la même transaction et a été annulé avec. 
+Ça montre que PostgreSQL peut aussi annuler des changements de structure comme ALTER TABLE.
+
+Q12. Tant que la clé existe, TTL temporaire renvoie le nombre de secondes restantes, qui diminue au fil du temps. 
+Une fois expirée, TTL renvoie -2 (clé inexistante) et GET temporaire renvoie (nil), car la valeur n'existe plus. 
+Une donnée PixelHub adaptée à une expiration serait un code de vérification temporaire ou une entrée de cache de classement.
+
+Q13. INCR est une opération atomique exécutée par Redis : chaque incrément est traité comme une seule opération,
+ même si plusieurs clients arrivent en même temps. Avec GET puis ajout dans le code puis SET, 
+ plusieurs joueurs pourraient lire la même valeur initiale, calculer le même résultat et écraser les mises à jour les uns des autres.
+  Des incréments seraient alors perdus, comme le risque d'écritures concurrentes vu avec les transactions et les verrous en 5.2.
+
+Q14. Oui, on pourrait ranger les deux jeux dans PostgreSQL, 
+mais une table unique devrait prévoir des colonnes facultatives pour les informations qui ne concernent qu'un jeu,
+par exemple plateformes et joueursMax, ce qui donnerait des valeurs NULL et une structure moins claire. 
+On pourrait aussi stocker les listes ou objets dans des colonnes JSON/JSONB, ou normaliser le modèle avec des tables liées 
+(par exemple une table pour les plateformes).
+Cette dernière solution permet de mieux contrôler les données, mais demande plus de schéma, de relations et parfois de jointures.
+MongoDB accepte directement des documents de formes différentes dans une même collection :
+c'est flexible pour un catalogue où les attributs varient selon le jeu, 
+en contrepartie d'une validation de structure moins imposée par défaut. Cela rejoint l'exercice de catalogue de jeux du CM1 : 
+le choix dépend de la variabilité des données et des besoins de cohérence et de requêtes.
+
+Q15. Pour « ami d'un ami », on joint deux fois Amities, une fois par relation suivie. En utilisant l'identifiant d'Ana :
+SELECT a2.ami_id
+FROM Amities a1
+JOIN Amities a2 ON a2.joueur_id = a1.ami_id
+WHERE a1.joueur_id = :ana_id;
+Pour « ami d'un ami d'un ami », il faut trois jointures de Amities (trois étapes dans le chemin). Une profondeur variable
+demande généralement une requête récursive en SQL.
+
+Q16. DELETE seul a été refusé parce que les nœuds Essai sont encore reliés par des relations AMI_DE. 
+Neo4j interdit de supprimer un nœud qui a encore des relations attachées, pour éviter de laisser des relations orphelines. 
+DETACH DELETE supprime d'abord les relations connectées au nœud, puis le nœud lui-même.
+
+Q17. La clé Redis survit au `stop` puis `start`, 
+car le conteneur est simplement arrêté puis redémarré et son système de fichiers reste là. 
+En revanche, après `down` puis `up`, le conteneur Redis est supprimé puis recréé : 
+comme Redis n'a pas de volume déclaré ni de persistance configurée ici, la clé `survivant` est perdue. 
+Les joueurs PostgreSQL, eux, survivent aux deux opérations, car les données sont stockées dans le volume Docker nommé `pg_data`, 
+qui persiste indépendamment du conteneur. `stop` arrête les conteneurs sans les supprimer ; `down` supprime les conteneurs et le réseau,
+mais conserve les volumes nommés par défaut. Ainsi, un volume est un stockage persistant séparé du cycle de vie du conteneur.

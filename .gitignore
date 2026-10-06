@@ -1,0 +1,10 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.idea/
+*.swp
+# Notes personnelles du TP
+notes.md

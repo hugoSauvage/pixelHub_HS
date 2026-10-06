@@ -1,0 +1,17 @@
+# Carnet de tests PixelHub — cliquer sur « Send request » au-dessus de chaque bloc.
+# Pour `dotnet run` : 5199 (launchSettings.json). L'API conteneurisée utilise 5200.
+@host = http://localhost:5199
+
+### Santé
+GET {{host}}/
+
+### Séance 1 — PostgreSQL
+GET {{host}}/players
+Accept: application/json
+
+### Séance 1 — créer un joueur
+POST {{host}}/players
+Content-Type: application/json
+
+{ "pseudo": "Pixel", "coins": 500 }
+    

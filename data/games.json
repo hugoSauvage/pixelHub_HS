@@ -1,0 +1,108 @@
+[
+  {
+    "titre": "Counter-Strike 2",
+    "genre": "FPS",
+    "note": 4.5,
+    "anneeSortie": 2023,
+    "plateformes": ["PC"],
+    "tags": ["compétitif", "tir", "équipe"],
+    "joueursParEquipe": 5,
+    "cartes": ["Dust II", "Mirage", "Inferno", "Nuke"],
+    "classementCompetitif": true
+  },
+  {
+    "titre": "Cities: Skylines II",
+    "genre": "Gestion",
+    "note": 3.8,
+    "anneeSortie": 2023,
+    "plateformes": ["PC", "PS5", "Xbox Series"],
+    "tags": ["construction", "simulation", "solo"],
+    "scenarios": ["Île", "Vallée", "Désert"],
+    "modeBacASable": true,
+    "dureeMoyennePartieHeures": 14
+  },
+  {
+    "titre": "Stardew Valley",
+    "genre": "Simulation",
+    "note": 4.8,
+    "anneeSortie": 2016,
+    "plateformes": ["PC", "Switch", "PS5", "Mobile"],
+    "tags": ["pixel art", "détente", "coopératif"],
+    "nombreSaisons": 4,
+    "coop": true,
+    "joueursMax": 4
+  },
+  {
+    "titre": "Hades II",
+    "genre": "Rogue-like",
+    "note": 4.7,
+    "anneeSortie": 2024,
+    "plateformes": ["PC", "Switch"],
+    "tags": ["rogue-like", "action", "solo"],
+    "nombreArmes": 6,
+    "generationProcedurale": true
+  },
+  {
+    "titre": "Mario Kart 8 Deluxe",
+    "genre": "Course",
+    "note": 4.6,
+    "anneeSortie": 2017,
+    "plateformes": ["Switch"],
+    "tags": ["course", "famille", "multijoueur local"],
+    "nombreCircuits": 96,
+    "nombrePersonnages": 42,
+    "modeMiroir": true
+  },
+  {
+    "titre": "Baldur's Gate 3",
+    "genre": "RPG",
+    "note": 4.9,
+    "anneeSortie": 2023,
+    "plateformes": ["PC", "PS5", "Xbox Series"],
+    "tags": ["narratif", "tour par tour", "coopératif"],
+    "nombreClasses": 12,
+    "dureeCampagneHeures": 75,
+    "choixNarratifs": true
+  },
+  {
+    "titre": "Rocket League",
+    "genre": "Sport",
+    "note": 4.3,
+    "anneeSortie": 2015,
+    "plateformes": ["PC", "PS5", "Xbox Series", "Switch"],
+    "tags": ["compétitif", "voiture", "arcade"],
+    "joueursParEquipe": 3,
+    "classementCompetitif": true
+  },
+  {
+    "titre": "Terraria",
+    "genre": "Bac à sable",
+    "note": 4.7,
+    "anneeSortie": 2011,
+    "plateformes": ["PC", "Switch", "PS5", "Mobile"],
+    "tags": ["exploration", "construction", "coopératif"],
+    "joueursMax": 8,
+    "mondesInfinis": true
+  },
+  {
+    "titre": "Valorant",
+    "genre": "FPS",
+    "note": 4.1,
+    "anneeSortie": 2020,
+    "plateformes": ["PC"],
+    "tags": ["compétitif", "tir", "héros"],
+    "joueursParEquipe": 5,
+    "nombreAgents": 26,
+    "classementCompetitif": true
+  },
+  {
+    "titre": "Vampire Survivors",
+    "genre": "Rogue-like",
+    "note": 4.4,
+    "anneeSortie": 2022,
+    "plateformes": ["PC", "Switch", "Mobile"],
+    "tags": ["rogue-like", "arcade", "solo"],
+    "nombrePersonnages": 40,
+    "generationProcedurale": true
+  }
+]

@@ -14,4 +14,20 @@ POST {{host}}/players
 Content-Type: application/json
 
 { "pseudo": "Pixel", "coins": 500 }
+
+### Séance 2 — MongoDB : catalogue complet
+GET {{host}}/games
+Accept: application/json
+
+### Séance 2 — filtrage par genre
+GET {{host}}/games/genre/FPS
+Accept: application/json
+
+### Séance 2 — top 3
+GET {{host}}/games/top/3
+Accept: application/json
+
+### Séance 2 — agrégation : note moyenne par genre
+GET {{host}}/games/stats
+Accept: application/json
     

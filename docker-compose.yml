@@ -99,11 +99,17 @@ services:
     image: pixelhub-api:seance1
     container_name: pixelhub-api
     environment:
+      ConnectionStrings__Mongo: "mongodb://pixelhub:pixelhub_dev@mongo:27017/?authSource=admin"
+      ConnectionStrings__Redis: "redis:6379"
       ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=pixelhub;Username=pixelhub;Password=pixelhub_dev"
     ports:
       - "${API_PORT:-5200}:8080"
     depends_on:
       postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
 volumes:

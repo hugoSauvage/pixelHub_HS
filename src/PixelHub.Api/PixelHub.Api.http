@@ -30,4 +30,26 @@ Accept: application/json
 ### Séance 2 — agrégation : note moyenne par genre
 GET {{host}}/games/stats
 Accept: application/json
+
+### Séance 3 — cache du catalogue et mesure du temps
+GET {{host}}/games/timed
+Accept: application/json
+
+### Séance 3 — ajouter des points au classement
+POST {{host}}/leaderboard/Nova/points/4500
+
+### Séance 3 — classement du meilleur au moins bien classé
+GET {{host}}/leaderboard/top/5
+Accept: application/json
+
+### Séance 3 — rang d'un joueur (à partir de 1)
+GET {{host}}/leaderboard/rank/Nova
+Accept: application/json
+
+### Séance 3 — signal de présence
+POST {{host}}/online/Nova
+
+### Séance 3 — nombre de joueurs en ligne
+GET {{host}}/online/count
+Accept: application/json
     

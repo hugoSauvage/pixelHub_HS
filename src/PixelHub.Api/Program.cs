@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using PixelHub.Api.Data;
 using PixelHub.Api.Models;
+using PixelHub.Api.Services;
 using MongoDB.Driver;
 using PixelHub.Api.Repositories;
 using StackExchange.Redis;
+using Neo4j.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,19 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
         ?? throw new InvalidOperationException("La chaîne de connexion Redis est manquante.")));
 builder.Services.AddSingleton<ILeaderboard, RedisLeaderboard>();
 builder.Services.AddSingleton<RedisPresence>();
+builder.Services.AddSingleton<RedisSales>();
+builder.Services.AddScoped<ShopService>();
+
+builder.Services.AddSingleton<IDriver>(_ =>
+    GraphDatabase.Driver(
+        builder.Configuration["Neo4j:Uri"]
+            ?? throw new InvalidOperationException("L'URI Neo4j est manquante."),
+        AuthTokens.Basic(
+            builder.Configuration["Neo4j:User"]
+                ?? throw new InvalidOperationException("L'utilisateur Neo4j est manquant."),
+            builder.Configuration["Neo4j:Password"]
+                ?? throw new InvalidOperationException("Le mot de passe Neo4j est manquant."))));
+builder.Services.AddSingleton<ISocialGraph, Neo4jSocialGraph>();
 
 var app = builder.Build();
 
@@ -106,5 +121,32 @@ app.MapPost("/online/{pseudo}", async (string pseudo, RedisPresence presence) =>
 
 app.MapGet("/online/count", async (RedisPresence presence) =>
     await presence.CountOnlineAsync());
+
+app.MapGet("/social/{pseudo}/friends",
+    async (string pseudo, ISocialGraph graph) => await graph.GetFriendsAsync(pseudo));
+
+app.MapGet("/social/{pseudo}/recommendations",
+    async (string pseudo, int? depth, ISocialGraph graph) =>
+        await graph.RecommendGamesAsync(pseudo, depth ?? 2));
+
+app.MapGet("/social/{pseudo}/friend-suggestions",
+    async (string pseudo, ISocialGraph graph) => await graph.SuggestFriendsAsync(pseudo));
+
+// ---------- Séance 4 bis — la boutique (mission 2) ----------
+app.MapPost("/shop/{pseudo}/buy/{titre}", async (string pseudo, string titre, ShopService shop) =>
+{
+    var r = await shop.BuyAsync(pseudo, titre);
+    return r.Statut switch
+    {
+        AchatStatut.Ok => Results.Ok(r.Recu),
+        AchatStatut.JeuInconnu => Results.NotFound(new { erreur = $"Jeu inconnu : {titre}" }),
+        AchatStatut.JoueurInconnu => Results.NotFound(new { erreur = $"Joueur inconnu : {pseudo}" }),
+        AchatStatut.SoldeInsuffisant => Results.Conflict(new { erreur = "Solde insuffisant" }),
+        AchatStatut.DejaPossede => Results.Conflict(new { erreur = "Jeu déjà acheté" }),
+        _ => Results.StatusCode(500)
+    };
+});
+
+app.MapGet("/shop/bestsellers", async (RedisSales ventes) => await ventes.GetTopAsync(3));
 
 app.Run();

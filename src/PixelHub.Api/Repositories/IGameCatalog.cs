@@ -9,6 +9,7 @@ public record GenreStats(string Genre, double NoteMoyenne, int Nombre);
 public interface IGameCatalog
 {
     Task<List<Game>> GetAllAsync();
+    Task<Game?> GetByTitleAsync(string titre);
     Task<List<Game>> GetByGenreAsync(string genre);
     Task<List<Game>> GetTopRatedAsync(int count);
     Task<List<GenreStats>> GetStatsByGenreAsync();

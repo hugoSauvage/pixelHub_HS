@@ -52,4 +52,42 @@ POST {{host}}/online/Nova
 ### Séance 3 — nombre de joueurs en ligne
 GET {{host}}/online/count
 Accept: application/json
+
+### Séance 4 — amis
+GET {{host}}/social/Krayz/friends
+Accept: application/json
+
+### Séance 4 — recommandations (profondeur par défaut : 2)
+GET {{host}}/social/Nova/recommendations
+Accept: application/json
+
+### Séance 4 — recommandations (profondeur : 3)
+GET {{host}}/social/Nova/recommendations?depth=3
+Accept: application/json
+
+### Séance 4 — suggestions d'amis
+GET {{host}}/social/Nova/friend-suggestions
+Accept: application/json
+
+### Séance 4 bis — boutique : Nova achète Terraria (1200 pièces)
+POST {{host}}/shop/Nova/buy/Terraria
+
+### Séance 4 bis — boutique : titre avec apostrophe et espaces encodés
+POST {{host}}/shop/Nova/buy/Baldur%27s%20Gate%203
+
+### Séance 4 bis — boutique : jeu gratuit (Valorant)
+POST {{host}}/shop/Nova/buy/Valorant
+
+### Séance 4 bis — boutique : jeu inconnu (404 attendu)
+POST {{host}}/shop/Nova/buy/Tetris
+
+### Séance 4 bis — boutique : racheter Valorant (conflit attendu)
+POST {{host}}/shop/Nova/buy/Valorant
+
+### Séance 4 bis — boutique : Luna achète Terraria
+POST {{host}}/shop/Luna/buy/Terraria
+
+### Séance 4 bis — meilleures ventes (Redis)
+GET {{host}}/shop/bestsellers
+Accept: application/json
     

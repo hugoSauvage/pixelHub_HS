@@ -15,6 +15,9 @@ public class MongoGameCatalog : IGameCatalog
     public async Task<List<Game>> GetAllAsync() =>
         await _jeux.Find(_ => true).ToListAsync();
 
+    public async Task<Game?> GetByTitleAsync(string titre) =>
+        await _jeux.Find(g => g.Titre == titre).FirstOrDefaultAsync();
+
     public async Task<List<Game>> GetByGenreAsync(string genre) =>
         await _jeux.Find(g => g.Genre == genre).ToListAsync();
 

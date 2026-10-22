@@ -28,4 +28,8 @@ public class Game
 
     [BsonElement("tags")]
     public List<string> Tags { get; set; } = new();
+
+    // Séance 4 bis : les documents sans prix correspondent à des jeux gratuits.
+    [BsonElement("prix")]
+    public int Prix { get; set; }
 }
